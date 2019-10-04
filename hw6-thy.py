@@ -93,17 +93,6 @@ class Bundle(Product):
     serial_number = 1
     category = 'BL'
 
-    def __init__(self, product1, product2, *products):
-        description = product1.description + product2.description
-        price = product1.list_price + product2.list_price
-        for each_product in products:
-            description += each_product.description
-            price += each_product.list_price
-        discount = 0.2
-        price *= (1 - discount)
-        super().__init__(description, price)
-
-
 def main():
     print('-----------------------------------')
     print('       Testing Product class')
