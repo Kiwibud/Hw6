@@ -3,12 +3,31 @@
 # Purpose: Mimic activities of a fictional online store using classes
 # Author: Kiwibud
 # ---------------------------------------------------------------------
+"""
+Implement classes to manipulate items sold by a fictional online store
+
+
+"""
 
 
 class Product:
+    """
+    Represent a general product
+
+    Arguments:
+    description (string): product's description
+    list_price (number): product's list price
+
+    Attributes:
+    description (string): product's description
+    list_price (number): product's list price
+    stock (number): amount of available products
+    sales (list): list of actual sale prices
+    reviews (list): list of user reviews
+    """
     serial_number = 1
-    product_id = ''
     category = 'GN'
+    product_id = ''
 
     def __init__(self, description, list_price):
         self.description = description
@@ -19,20 +38,37 @@ class Product:
         self.generate_product_id()
 
     def restock(self, quantity):
+        """
+        Update the amount of available products
+        :param quantity: (number) quantity of products
+        :return: None
+        """
         self.stock += quantity
 
     def review(self, stars, text):
+        """
+        Add reviews to list of user reviews
+        :param stars: (number) rating stars
+        :param text: (string) review
+        :return: None
+        """
         self.reviews.append((text, stars))
 
     def sell(self, quantity, sale_price):
+        """
+        Check stock and update amount of products after selling
+        :param quantity: (number) requested quantity of products
+        :param sale_price: (number) sale price
+        :return: None
+        """
         if quantity > self.stock:
             print(f'There are only {self.stock} available')
-            for i in range(self.stock):
+            for _ in range(self.stock):
                 self.sales.append(sale_price)
             self.restock(-self.stock)
 
         else:
-            for i in range(quantity):
+            for _ in range(quantity):
                 self.sales.append(sale_price)
             self.restock(-quantity)
 
@@ -43,6 +79,10 @@ class Product:
 
     @classmethod
     def generate_product_id(cls):
+        """
+        Generate the product id
+        :return: None
+        """
         serial_num = cls.serial_number
         # update serial number - class variable
         cls.serial_number += 1
@@ -50,6 +90,10 @@ class Product:
 
     @property
     def lowest_price(self):
+        """
+        Get the lowest price of the sale prices list
+        :return: (number) lowest price or price
+        """
         if len(self.sales) == 0:
             return None
         else:
@@ -57,14 +101,37 @@ class Product:
 
     @property
     def average_rating(self):
+        """
+        Get the average rating stars
+        :return: (number) average rating
+        """
         if len(self.reviews) == 0:
             return None
         else:
-            return sum(stars for text, stars in self.reviews) / len(
+            return sum(stars for (text, stars) in self.reviews) / len(
                 self.reviews)
+
+    def __add__(self, other):
+        return Bundle(self, other)
 
 
 class VideoGame(Product):
+    """
+    Represent a video game
+    Inherits from: Product
+
+    Arguments:
+    description (string): product's description
+    list_price (number): product's list price
+
+    Attributes:
+    description (string): product's description
+    list_price (number): product's list price
+    stock (number): amount of available products
+    sales (list): list of actual sale prices
+    reviews (list): list of user reviews
+
+    """
     serial_number = 1
     category = 'VG'
 
@@ -73,6 +140,24 @@ class VideoGame(Product):
 
 
 class Book(Product):
+    """
+    Represent a book
+    Inherits from: Product
+
+    Arguments:
+    description (string): product's description
+    list_price (number): product's list price
+
+    Attributes:
+    description (string): product's description
+    list_price (number): product's list price
+    stock (number): amount of available products
+    sales (list): list of actual sale prices
+    reviews (list): list of user reviews
+    author (string): author's name
+    pages (number): number of pages
+
+    """
     serial_number = 1
     category = 'BK'
 
@@ -81,7 +166,6 @@ class Book(Product):
         self.pages = pages
         super().__init__(description, list_price)
 
-    # DO WE NEED TO CHECK IF THE SAME BOOK???
     def __lt__(self, other):
         return self.pages < other.pages
 
@@ -90,8 +174,44 @@ class Book(Product):
 
 
 class Bundle(Product):
+    """
+    Represent a bundle of two or more products
+    Inherits from: Product
+
+    Arguments:
+    first (Product): first product
+    second (Product): second product
+    args (Product): 0 or more products
+
+    Attributes:
+    description (string): product's description
+    list_price (number): product's list price
+    stock (number): amount of available products
+    sales (list): list of actual sale prices
+    reviews (list): list of user reviews
+
+    """
     serial_number = 1
     category = 'BL'
+    bundle_discount = 0.8
+
+    def __init__(self, first, second, *args):
+        self.description = f'{first.description} & {second.description}'
+        self.list_price = first.list_price + second.list_price
+        for arg in args:
+            self.description += f' & {arg.description}'
+            self.list_price += arg.list_price
+        self.list_price *= self.bundle_discount
+        super().__init__(self.description, self.list_price)
+    """
+    The corresponding to the best_bundle is BL000006. 
+    Every time we add 2 products,we create a Bundle object,
+    which will increment the variable serial_number by 1. 
+    -The serial_number starts from BL000003 (back_to_school_bundle) 
+    b1 = sunglasses + headphones=> BL000004
+    b2 = b1 + book1 		    => BL000005
+    best_bundle = b2 + mario	=> BL000006
+    """
 
 def main():
     print('-----------------------------------')
@@ -171,6 +291,19 @@ def main():
     print('-----------------------------------')
     bundle1 = Bundle(sunglasses, backpack, mario)
     print(bundle1)
+    bundle1.restock(3)
+    bundle1.sell(1, 90)
+    print(bundle1)
+    bundle1.sell(2, 95)
+    print(bundle1)
+    print(bundle1.lowest_price)
+    bundle2 = Bundle(book1, book2)
+    bundle2.restock(2)
+    print(bundle2)
+    back_to_school_bundle = backpack + book1
+    print(back_to_school_bundle)
+    best_bundle = sunglasses + headphones + book1 + mario
+    print(best_bundle)
 
 
 if __name__ == "__main__":
