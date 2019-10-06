@@ -6,7 +6,10 @@
 """
 Implement classes to manipulate items sold by a fictional online store
 
-
+Product class to represent the general product
+VideoGame class to represent a video game
+Book class to represent a book
+Bundle class to represent a bundle of products
 """
 
 
@@ -203,6 +206,7 @@ class Bundle(Product):
             self.list_price += arg.list_price
         self.list_price *= self.bundle_discount
         super().__init__(self.description, self.list_price)
+
     """
     The corresponding to the best_bundle is BL000006. 
     Every time we add 2 products,we create a Bundle object,
@@ -212,6 +216,7 @@ class Bundle(Product):
     b2 = b1 + book1 		    => BL000005
     best_bundle = b2 + mario	=> BL000006
     """
+
 
 def main():
     print('-----------------------------------')
